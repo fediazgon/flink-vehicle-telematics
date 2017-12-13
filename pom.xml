@@ -33,6 +33,7 @@ under the License.
         <scala.compat.version>2.10</scala.compat.version>
         <slf4j.version>1.7.7</slf4j.version>
         <log4j.version>1.2.17</log4j.version>
+        <runSuite>**/MySuite.class</runSuite>
     </properties>
 
     <repositories>
@@ -197,6 +198,16 @@ under the License.
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.20.1</version>
+                <configuration>
+                    <includes>
+                        <include>${runSuite}</include>
+                    </includes>
+                </configuration>
             </plugin>
             <!-- We use the maven-shade plugin to create a fat jar that contains all dependencies
             except flink and its transitive dependencies. The resulting fat-jar can be executed

@@ -9,7 +9,10 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
-public class AverageSpeedControl {
+public final class AverageSpeedControl {
+
+    private AverageSpeedControl() {
+    }
 
     public static SingleOutputStreamOperator<AverageSpeedEvent> run(SingleOutputStreamOperator<PositionEvent> stream) {
         return stream.filter((PositionEvent e) -> e.getSegment() >= 52 && e.getSegment() <= 56)
@@ -41,8 +44,8 @@ public class AverageSpeedControl {
                         elements++;
                     }
 
-                    for (int i = 1; i < completedSegments.length; i++) {
-                        if (completedSegments[0] != completedSegments[i]) {
+                    for (boolean completedSegment : completedSegments) {
+                        if (!completedSegment) {
                             completed = false;
                             break;
                         }

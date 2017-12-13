@@ -3,7 +3,10 @@ package es.upm.cc;
 import es.upm.cc.events.PositionEvent;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
-public class SpeedRadar {
+public final class SpeedRadar {
+
+    private SpeedRadar() {
+    }
 
     private static final int MAXIMUM_SPEED = 90;
 

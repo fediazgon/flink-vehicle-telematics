@@ -13,4 +13,12 @@ public class AverageSpeedEvent extends Tuple6<Integer, Integer, String,
         super(timestamp1, timestamp2, vid, xway, dir, avgSpeed);
     }
 
+    public int getT1() {
+        return f0;
+    }
+
+    public int getT2() {
+        return f1;
+    }
+
 }
