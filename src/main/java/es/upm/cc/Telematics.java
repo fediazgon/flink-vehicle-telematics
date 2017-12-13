@@ -17,9 +17,9 @@ public class Telematics {
 
     private static Logger log = Logger.getLogger(Telematics.class);
 
-    private static final String SPEED_RADAR_FILE = "speedfines.csv";
-    private static final String AVG_SPEED_FILE = "avgspeedfines.csv";
-    private static final String ACCIDENTS_FILE = "accidents.csv";
+    public static final String SPEED_RADAR_FILE = "speedfines.csv";
+    public static final String AVG_SPEED_FILE = "avgspeedfines.csv";
+    public static final String ACCIDENTS_FILE = "accidents.csv";
 
     public static void main(String[] args) {
 
@@ -28,14 +28,14 @@ public class Telematics {
             System.exit(1);
         }
 
-        String input = args[0];
-        String output = args[1];
+        String inputFile = args[0];
+        String outputFolder = args[1];
 
         //TODO: delete in the final version. Only here for testing.
         try {
-            FileUtils.deleteFileOrDirectory((new File(output)));
+            FileUtils.deleteFileOrDirectory((new File(outputFolder)));
         } catch (IOException e) {
-            log.error(String.format("IOException: dir %s could no be cleaned", output));
+            log.error(String.format("IOException: dir %s could no be cleaned", outputFolder));
             e.printStackTrace();
         }
 
@@ -43,7 +43,7 @@ public class Telematics {
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         env.getConfig().disableSysoutLogging();
 
-        SingleOutputStreamOperator<PositionEvent> source = env.readTextFile(input)
+        SingleOutputStreamOperator<PositionEvent> source = env.readTextFile(inputFile)
                 .map(new Tokenizer())
                 .assignTimestampsAndWatermarks(new AscendingTimestampExtractor<PositionEvent>() {
                     @Override
@@ -53,13 +53,17 @@ public class Telematics {
                 });
 
 
-        SpeedRadar.run(source).print();
-        AverageSpeedControl.run(source).print();
+        SpeedRadar.run(source)
+                .writeAsCsv(String.format("%s/%s", outputFolder, SPEED_RADAR_FILE));
+
+        AverageSpeedControl.run(source)
+                .writeAsCsv(String.format("%s/%s", outputFolder, AVG_SPEED_FILE));
 
         try {
             env.execute("vehicle-telematics");
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(1);
         }
 
     }

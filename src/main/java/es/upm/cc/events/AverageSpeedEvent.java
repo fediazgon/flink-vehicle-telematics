@@ -21,4 +21,8 @@ public class AverageSpeedEvent extends Tuple6<Integer, Integer, String,
         return f1;
     }
 
+    public double getAvgSpeed() {
+        return f5;
+    }
+
 }
