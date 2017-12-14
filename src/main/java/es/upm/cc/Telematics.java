@@ -21,23 +21,15 @@ public class Telematics {
     public static final String AVG_SPEED_FILE = "avgspeedfines.csv";
     public static final String ACCIDENTS_FILE = "accidents.csv";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         if (args.length < 2) {
             System.out.println("Usage: <input file> <output folder>");
-            System.exit(1);
+            throw new Exception();
         }
 
         String inputFile = args[0];
         String outputFolder = args[1];
-
-        //TODO: delete in the final version. Only here for testing.
-        try {
-            FileUtils.deleteFileOrDirectory((new File(outputFolder)));
-        } catch (IOException e) {
-            log.error(String.format("IOException: dir %s could no be cleaned", outputFolder));
-            e.printStackTrace();
-        }
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
@@ -59,12 +51,7 @@ public class Telematics {
         AverageSpeedControl.run(source)
                 .writeAsCsv(String.format("%s/%s", outputFolder, AVG_SPEED_FILE));
 
-        try {
-            env.execute("vehicle-telematics");
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
+        env.execute("vehicle-telematics");
 
     }
 

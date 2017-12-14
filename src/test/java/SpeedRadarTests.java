@@ -5,6 +5,7 @@ import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import org.apache.flink.streaming.util.StreamingMultipleProgramsTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,7 +14,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class SpeedRadarTests {
+public class SpeedRadarTests extends StreamingMultipleProgramsTestBase {
 
     private StreamExecutionEnvironment env;
 
