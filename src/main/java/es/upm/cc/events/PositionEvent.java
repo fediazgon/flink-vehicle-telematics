@@ -36,4 +36,8 @@ public class PositionEvent extends Tuple8<Integer, String, Integer,
     public int getSegment() {
         return f6;
     }
+
+    public int getPosition() {
+        return f7;
+    }
 }

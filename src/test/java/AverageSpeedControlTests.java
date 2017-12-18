@@ -9,8 +9,8 @@ import org.apache.flink.streaming.util.StreamingMultipleProgramsTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -21,125 +21,153 @@ public class AverageSpeedControlTests extends StreamingMultipleProgramsTestBase 
 
     @Before
     public void createEnv() {
-        env = StreamExecutionEnvironment.getExecutionEnvironment()
-                .setParallelism(1);
+        env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
     }
 
     @Test
-    public void shouldDetectOneAvgSpeedEvent() throws Exception {
+    public void shouldNotDetectAvgSpeedEventWhenDoesNotGoThroughSegment() throws Exception {
 
         AverageSpeedEventSink.values.clear();
 
         String[] data = new String[]{
-                "100,1,91,0,3,0,52,100000",
-                "130,1,91,0,3,0,53,101000",
-                "160,1,91,0,3,0,54,102000",
-                "190,1,91,0,3,0,55,103000",
-                "220,1,91,0,3,0,56,104000"
+                "130,1,65,0,3,0,49,100000",
+                "160,1,65,0,3,0,50,100900",
+                "190,1,65,0,3,0,51,101800",
+                "300,2,65,0,3,1,59,200000",
+                "330,2,65,0,3,1,58,209000",
+                "360,2,65,0,3,1,57,102700",
         };
 
-        SingleOutputStreamOperator<PositionEvent> source = Utils.streamFromLines(env, data);
+        SingleOutputStreamOperator<PositionEvent> source
+                = new PositionStreamBuilder(env).fromLines(data).build();
 
         AverageSpeedControl.run(source).addSink(new AverageSpeedEventSink());
         env.execute();
 
-        List<AverageSpeedEvent> events = AverageSpeedEventSink.values;
+        assertTrue(AverageSpeedEventSink.values.isEmpty());
+    }
+
+    @Test
+    public void shouldNotDetectAvgSpeedEventWhenSegmentUncompleted() throws Exception {
+
+        AverageSpeedEventSink.values.clear();
+
+        String[] data = new String[]{
+                "100,1,65,0,3,0,52,100000",
+                "130,1,65,0,3,0,53,100900",
+                "160,1,65,0,3,0,54,101800",
+                "190,1,65,0,3,0,55,102700",
+        };
+
+        SingleOutputStreamOperator<PositionEvent> source
+                = new PositionStreamBuilder(env).fromLines(data).build();
+
+        AverageSpeedControl.run(source).addSink(new AverageSpeedEventSink());
+        env.execute();
+
+        assertTrue(AverageSpeedEventSink.values.isEmpty());
+    }
+
+    @Test
+    public void shouldNotDetectAvgSpeedEventWhenAverageIsBelowSixty() throws Exception {
+
+        AverageSpeedEventSink.values.clear();
+
+        String[] data = new String[]{
+                "100,1,65,0,3,0,52,100000",
+                "130,1,65,0,3,0,53,100100",
+                "160,1,65,0,3,0,54,100200",
+                "190,1,65,0,3,0,55,100300",
+                "220,1,65,0,3,0,56,100400"
+        };
+
+        // 400 / 120 * 2.23694 = 7.46
+
+        SingleOutputStreamOperator<PositionEvent> source
+                = new PositionStreamBuilder(env).fromLines(data).build();
+
+        AverageSpeedControl.run(source).addSink(new AverageSpeedEventSink());
+        env.execute();
+
+        assertTrue(AverageSpeedEventSink.values.isEmpty());
+    }
+
+    @Test
+    public void shouldDetectOneAvgSpeedEventWhenSegmentCompleted() throws Exception {
+
+        AverageSpeedEventSink.values.clear();
+
+        String[] data = new String[]{
+                "100,1,65,0,3,0,52,100000",
+                "130,1,65,0,3,0,53,100900",
+                "160,1,65,0,3,0,54,101800",
+                "190,1,65,0,3,0,55,102700",
+                "220,1,65,0,3,0,56,103600"
+        };
+
+        SingleOutputStreamOperator<PositionEvent> source
+                = new PositionStreamBuilder(env).fromLines(data).build();
+
+        AverageSpeedControl.run(source).addSink(new AverageSpeedEventSink());
+        env.execute();
+
+        Map<String, AverageSpeedEvent> events = AverageSpeedEventSink.values;
         assertEquals(1, events.size());
 
-        AverageSpeedEvent e = events.get(0);
+        AverageSpeedEvent e = events.get("1");
         assertEquals(100, e.getT1());
         assertEquals(220, e.getT2());
-        assertEquals(91, e.getAvgSpeed(), 0);
+        assertEquals(67.1082, e.getAvgSpeed(), 0.0001);
     }
 
     @Test
-    public void shouldNotDetectAvgSpeedEvent() throws Exception {
+    public void shouldDetectTwoAvgSpeedEventsSameCar() throws Exception {
 
         AverageSpeedEventSink.values.clear();
 
         String[] data = new String[]{
-                "130,1,42,0,3,0,49,100000",
-                "160,1,42,0,3,0,50,101000",
-                "190,1,42,0,3,0,51,102000",
-                "300,2,42,0,3,1,59,200000",
-                "330,2,42,0,3,1,58,201000",
-                "360,2,42,0,3,1,57,202000",
+                "100,1,65,0,3,0,52,100000",
+                "130,1,65,0,3,0,53,100900",
+                "160,1,65,0,3,0,54,101800",
+                "190,1,65,0,3,0,55,102700",
+                "220,1,65,0,3,0,56,103600",
+                "300,2,65,0,3,1,56,203600",
+                "330,2,65,0,3,1,55,202700",
+                "360,2,65,0,3,1,54,201800",
+                "390,2,65,0,3,1,53,200900",
+                "420,2,65,0,3,1,52,200000"
         };
 
-        SingleOutputStreamOperator<PositionEvent> source = Utils.streamFromLines(env, data);
+        SingleOutputStreamOperator<PositionEvent> source
+                = new PositionStreamBuilder(env).fromLines(data).build();
 
         AverageSpeedControl.run(source).addSink(new AverageSpeedEventSink());
         env.execute();
 
-        assertTrue(AverageSpeedEventSink.values.isEmpty());
-    }
-
-    @Test
-    public void shouldNotDetectAvgSpeedEventIncompleteSegment() throws Exception {
-
-        AverageSpeedEventSink.values.clear();
-
-        String[] data = new String[]{
-                "100,1,91,0,3,0,52,100000",
-                "130,1,91,0,3,0,53,101000",
-                "160,1,91,0,3,0,54,102000",
-                "190,1,91,0,3,0,55,103000",
-        };
-
-        SingleOutputStreamOperator<PositionEvent> source = Utils.streamFromLines(env, data);
-
-        AverageSpeedControl.run(source).addSink(new AverageSpeedEventSink());
-        env.execute();
-
-        assertTrue(AverageSpeedEventSink.values.isEmpty());
-    }
-
-    @Test
-    public void shouldDetectTwoAvgSpeedEventSameCar() throws Exception {
-
-        AverageSpeedEventSink.values.clear();
-
-        String[] data = new String[]{
-                "100,1,91,0,3,0,52,100000",
-                "130,1,91,0,3,0,53,101000",
-                "160,1,91,0,3,0,54,102000",
-                "190,1,91,0,3,0,55,103000",
-                "220,1,91,0,3,0,56,104000",
-                "300,1,40,0,3,1,56,204000",
-                "330,1,50,0,3,1,55,203000",
-                "360,1,60,0,3,1,54,202000",
-                "390,1,50,0,3,1,53,201000",
-                "420,1,40,0,3,1,52,200000"
-        };
-
-        SingleOutputStreamOperator<PositionEvent> source = Utils.streamFromLines(env, data);
-
-        AverageSpeedControl.run(source).addSink(new AverageSpeedEventSink());
-        env.execute();
-
-        List<AverageSpeedEvent> events = AverageSpeedEventSink.values;
+        Map<String, AverageSpeedEvent> events = AverageSpeedEventSink.values;
         assertEquals(2, events.size());
 
-        AverageSpeedEvent first = events.get(0);
+        AverageSpeedEvent first = events.get("1");
         assertEquals(100, first.getT1());
         assertEquals(220, first.getT2());
-        assertEquals(91, first.getAvgSpeed(), 0);
+        assertEquals(67.1082, first.getAvgSpeed(), 0.0001);
 
-        AverageSpeedEvent second = events.get(1);
+        AverageSpeedEvent second = events.get("2");
         assertEquals(300, second.getT1());
         assertEquals(420, second.getT2());
-        assertEquals(48, second.getAvgSpeed(), 0);
+        assertEquals(67.1082, second.getAvgSpeed(), 0.0001);
     }
 
     private static class AverageSpeedEventSink implements SinkFunction<AverageSpeedEvent> {
 
-        // must be static
-        static final List<AverageSpeedEvent> values = new ArrayList<>();
+        // Hacky, because parallelism is not 1, we cannot assure that
+        // events arrive in a particular order
+        static final Map<String, AverageSpeedEvent> values = new HashMap<>();
 
         @Override
         public synchronized void invoke(AverageSpeedEvent event) throws Exception {
-            values.add(event);
+            values.put(event.f2, event);
         }
     }
 

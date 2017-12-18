@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SpeedRadarTests extends StreamingMultipleProgramsTestBase {
 
@@ -20,8 +21,7 @@ public class SpeedRadarTests extends StreamingMultipleProgramsTestBase {
 
     @Before
     public void createEnv() {
-        env = StreamExecutionEnvironment.getExecutionEnvironment()
-                .setParallelism(1);
+        env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
     }
 
@@ -36,12 +36,14 @@ public class SpeedRadarTests extends StreamingMultipleProgramsTestBase {
                 "90,1,99,0,3,1,52,102000"
         };
 
-        SingleOutputStreamOperator<PositionEvent> source = Utils.streamFromLines(env, data);
+        SingleOutputStreamOperator<PositionEvent> source
+                = new PositionStreamBuilder(env).fromLines(data).build();
 
         SpeedRadar.run(source).addSink(new PositionEventSink());
         env.execute();
 
-        assertEquals(Lists.newArrayList(30, 90), PositionEventSink.values);
+        assertTrue(PositionEventSink.values
+                .containsAll(Lists.newArrayList(30, 90)));
     }
 
     private static class PositionEventSink implements SinkFunction<PositionEvent> {

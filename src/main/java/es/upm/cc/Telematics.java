@@ -35,22 +35,17 @@ public class Telematics {
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         env.getConfig().disableSysoutLogging();
 
-        SingleOutputStreamOperator<PositionEvent> source = env.readTextFile(inputFile)
-                .map(new Tokenizer())
-                .assignTimestampsAndWatermarks(new AscendingTimestampExtractor<PositionEvent>() {
-                    @Override
-                    public long extractAscendingTimestamp(PositionEvent positionEvent) {
-                        return positionEvent.getTimestamp() * 1000;
-                    }
-                });
-
+        SingleOutputStreamOperator<PositionEvent> source = env
+                .readTextFile(inputFile)
+                .map(new Tokenizer()).setParallelism(1);
 
         SpeedRadar.run(source)
-                .writeAsCsv(String.format("%s/%s", outputFolder, SPEED_RADAR_FILE));
+                .writeAsCsv(String.format("%s/%s", outputFolder, SPEED_RADAR_FILE)).setParallelism(1);
 
         AverageSpeedControl.run(source)
-                .writeAsCsv(String.format("%s/%s", outputFolder, AVG_SPEED_FILE));
+                .writeAsCsv(String.format("%s/%s", outputFolder, AVG_SPEED_FILE)).setParallelism(1);
 
+        AccidentReporter.run(source).print();
         env.execute("vehicle-telematics");
 
     }

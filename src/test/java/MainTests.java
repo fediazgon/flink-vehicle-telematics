@@ -1,3 +1,4 @@
+import es.upm.cc.AccidentReporter;
 import es.upm.cc.AverageSpeedControl;
 import es.upm.cc.SpeedRadar;
 import es.upm.cc.Telematics;
@@ -52,6 +53,7 @@ public class MainTests extends StreamingMultipleProgramsTestBase {
         new Telematics();
         new SpeedRadar();
         new AverageSpeedControl();
+        new AccidentReporter();
     }
 
 }
