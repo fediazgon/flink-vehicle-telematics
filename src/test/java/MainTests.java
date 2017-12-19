@@ -10,6 +10,7 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 
+import static es.upm.cc.Telematics.ACCIDENTS_FILE;
 import static es.upm.cc.Telematics.AVG_SPEED_FILE;
 import static es.upm.cc.Telematics.SPEED_RADAR_FILE;
 import static org.junit.Assert.assertTrue;
@@ -45,6 +46,7 @@ public class MainTests extends StreamingMultipleProgramsTestBase {
 
         assertTrue(new File(String.format("%s/%s", output, SPEED_RADAR_FILE)).exists());
         assertTrue(new File(String.format("%s/%s", output, AVG_SPEED_FILE)).exists());
+        assertTrue(new File(String.format("%s/%s", output, ACCIDENTS_FILE)).exists());
     }
 
     //TODO: delete and make private constructors when jacoco 0.8 is released

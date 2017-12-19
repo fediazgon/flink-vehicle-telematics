@@ -9,6 +9,8 @@ import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.GlobalWindow;
 import org.apache.flink.util.Collector;
 
+import java.util.Iterator;
+
 public class AccidentReporter {
 
     public static SingleOutputStreamOperator<AccidentEvent> run(SingleOutputStreamOperator<PositionEvent> stream) {
@@ -17,38 +19,48 @@ public class AccidentReporter {
                 .keyBy(new KeySelector<PositionEvent, Tuple5<String, Integer, Integer, Integer, Integer>>() {
                     @Override
                     public Tuple5<String, Integer, Integer, Integer, Integer> getKey(PositionEvent positionEvent) throws Exception {
-                        return new Tuple5<>(positionEvent.getVid(),
+                        return new Tuple5<>(
+                                positionEvent.getVid(),
                                 positionEvent.getXway(),
                                 positionEvent.getSegment(),
                                 positionEvent.getDir(),
                                 positionEvent.getPosition());
                     }
                 }).countWindow(4, 1)
-                .apply(myWindowFunction);
+                .apply(new MyWindowFunction());
     }
 
-    private static WindowFunction<PositionEvent, AccidentEvent, Tuple5<String, Integer, Integer, Integer, Integer>, GlobalWindow> myWindowFunction =
-            new WindowFunction<PositionEvent, AccidentEvent, Tuple5<String, Integer, Integer, Integer, Integer>, GlobalWindow>() {
+    static class MyWindowFunction implements WindowFunction<PositionEvent, AccidentEvent,
+            Tuple5<String, Integer, Integer, Integer, Integer>, GlobalWindow> {
 
-                @Override
-                public void apply(Tuple5<String, Integer, Integer, Integer, Integer> key, GlobalWindow globalWindow, Iterable<PositionEvent> iterable, Collector<AccidentEvent> collector) throws Exception {
+        private AccidentEvent accidentEvent = new AccidentEvent();
+        private PositionEvent lastElement = new PositionEvent();
 
-                    int firstTimestamp = Integer.MAX_VALUE;
-                    int lastTimestamp = 0;
-                    int count = 0;
+        @Override
+        public void apply(Tuple5<String, Integer, Integer, Integer, Integer> key, GlobalWindow globalWindow,
+                          Iterable<PositionEvent> iterable, Collector<AccidentEvent> collector) throws Exception {
 
-                    for (PositionEvent e : iterable) {
-                        int currentTimestamp = e.getTimestamp();
-                        firstTimestamp = Math.min(firstTimestamp, currentTimestamp);
-                        lastTimestamp = Math.max(lastTimestamp, currentTimestamp);
-                        count++;
-                    }
+            Iterator<PositionEvent> events = iterable.iterator();
 
-                    if (count == 4) {
-                        collector.collect(new AccidentEvent(firstTimestamp, lastTimestamp,
-                                key.f0, key.f1, key.f2, key.f3, key.f4));
-                    }
-                }
-            };
+            int firstTimestamp = events.next().getTimestamp();
+            int count = 1;
+
+            while (events.hasNext()) {
+                count++;
+                lastElement = events.next();
+            }
+
+            if (count == 4) {
+                accidentEvent.f0 = firstTimestamp;
+                accidentEvent.f1 = lastElement.getTimestamp();
+                accidentEvent.f2 = key.f0;
+                accidentEvent.f3 = key.f1;
+                accidentEvent.f4 = key.f2;
+                accidentEvent.f5 = key.f3;
+                accidentEvent.f6 = key.f4;
+                collector.collect(accidentEvent);
+            }
+        }
+    }
 
 }

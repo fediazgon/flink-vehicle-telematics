@@ -13,7 +13,14 @@ public class PositionStreamBuilder {
     }
 
     public PositionStreamBuilder fromLines(String[] lines) {
-        stream = env.fromElements(lines).map(new Telematics.Tokenizer()).setParallelism(1);
+        stream = env.fromElements(lines)
+                .setParallelism(1)
+                .map(new Telematics.Tokenizer());
+        return this;
+    }
+
+    public PositionStreamBuilder withParallelism(int parallelism) {
+        stream = stream.setParallelism(1);
         return this;
     }
 

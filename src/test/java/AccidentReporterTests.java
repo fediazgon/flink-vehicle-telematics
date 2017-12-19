@@ -6,6 +6,7 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.util.StreamingMultipleProgramsTestBase;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,6 +18,9 @@ import static org.junit.Assert.assertEquals;
 public class AccidentReporterTests extends StreamingMultipleProgramsTestBase {
 
     private StreamExecutionEnvironment env;
+    SingleOutputStreamOperator<PositionEvent> source;
+
+    private String[] data;
 
     @Before
     public void createEnv() {
@@ -24,20 +28,25 @@ public class AccidentReporterTests extends StreamingMultipleProgramsTestBase {
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
     }
 
+    @After
+    public void emptySink() {
+        AccidentEventSink.values.clear();
+    }
+
     @Test
     public void shouldDetectOneAccidentEvent() throws Exception {
 
-        AccidentEventSink.values.clear();
-
-        String[] data = new String[]{
+        this.data = new String[]{
                 "500,1,0,10,2,0,42,200000",
                 "530,1,0,10,2,0,42,200000",
                 "560,1,0,10,2,0,42,200000",
                 "590,1,0,10,2,0,42,200000",
         };
 
-        SingleOutputStreamOperator<PositionEvent> source
-                = new PositionStreamBuilder(env).fromLines(data).build();
+        SingleOutputStreamOperator<PositionEvent> source =
+                new PositionStreamBuilder(env)
+                        .fromLines(data).withParallelism(1)
+                        .build();
 
         AccidentReporter.run(source).addSink(new AccidentEventSink());
         env.execute();
@@ -60,9 +69,7 @@ public class AccidentReporterTests extends StreamingMultipleProgramsTestBase {
     @Test
     public void shouldDetectThreeAccidentEvents() throws Exception {
 
-        AccidentEventSink.values.clear();
-
-        String[] data = new String[]{
+        this.data = new String[]{
                 "100,1,0,0,3,1,52,100000",
                 "130,1,0,0,3,1,52,100000",
                 "160,1,0,0,3,1,52,100000",
@@ -71,8 +78,10 @@ public class AccidentReporterTests extends StreamingMultipleProgramsTestBase {
                 "250,1,0,0,3,1,52,100000",
         };
 
-        SingleOutputStreamOperator<PositionEvent> source
-                = new PositionStreamBuilder(env).fromLines(data).build();
+        SingleOutputStreamOperator<PositionEvent> source =
+                new PositionStreamBuilder(env)
+                        .fromLines(data).withParallelism(1)
+                        .build();
 
         AccidentReporter.run(source).addSink(new AccidentEventSink());
         env.execute();

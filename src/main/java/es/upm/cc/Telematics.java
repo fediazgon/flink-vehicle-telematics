@@ -15,8 +15,6 @@ import java.util.Arrays;
 
 public class Telematics {
 
-    private static Logger log = Logger.getLogger(Telematics.class);
-
     public static final String SPEED_RADAR_FILE = "speedfines.csv";
     public static final String AVG_SPEED_FILE = "avgspeedfines.csv";
     public static final String ACCIDENTS_FILE = "accidents.csv";
@@ -33,19 +31,19 @@ public class Telematics {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-        env.getConfig().disableSysoutLogging();
 
-        SingleOutputStreamOperator<PositionEvent> source = env
-                .readTextFile(inputFile)
-                .map(new Tokenizer()).setParallelism(1);
+        SingleOutputStreamOperator<String> linesSource = env.readTextFile(inputFile).setParallelism(1);
+        SingleOutputStreamOperator<PositionEvent> mappedlines = linesSource.map(new Tokenizer());
 
-        SpeedRadar.run(source)
-                .writeAsCsv(String.format("%s/%s", outputFolder, SPEED_RADAR_FILE)).setParallelism(1);
+        SpeedRadar.run(mappedlines)
+                .writeAsCsv(String.format("%s/%s", outputFolder, SPEED_RADAR_FILE));
 
-        AverageSpeedControl.run(source)
-                .writeAsCsv(String.format("%s/%s", outputFolder, AVG_SPEED_FILE)).setParallelism(1);
+        AverageSpeedControl.run(mappedlines)
+                .writeAsCsv(String.format("%s/%s", outputFolder, AVG_SPEED_FILE));
 
-        AccidentReporter.run(source).print();
+        AccidentReporter.run(linesSource.map(new Tokenizer()).setParallelism(1))
+                .writeAsCsv(String.format("%s/%s", outputFolder, ACCIDENTS_FILE));
+
         env.execute("vehicle-telematics");
 
     }

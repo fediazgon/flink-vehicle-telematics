@@ -122,7 +122,7 @@ public class AverageSpeedControlTests extends StreamingMultipleProgramsTestBase 
     }
 
     @Test
-    public void shouldDetectTwoAvgSpeedEventsSameCar() throws Exception {
+    public void shouldDetectTwoAvgSpeedEvents() throws Exception {
 
         AverageSpeedEventSink.values.clear();
 
