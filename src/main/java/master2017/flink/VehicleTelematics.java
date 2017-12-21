@@ -1,19 +1,14 @@
-package es.upm.cc;
+package master2017.flink;
 
-import es.upm.cc.events.PositionEvent;
+import master2017.flink.events.PositionEvent;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.timestamps.AscendingTimestampExtractor;
-import org.apache.flink.util.FileUtils;
-import org.apache.log4j.Logger;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 
-public class Telematics {
+public class VehicleTelematics {
 
     public static final String SPEED_RADAR_FILE = "speedfines.csv";
     public static final String AVG_SPEED_FILE = "avgspeedfines.csv";
@@ -52,12 +47,21 @@ public class Telematics {
 
         private static final long serialVersionUID = 1L;
 
+        PositionEvent event = new PositionEvent();
+
         @Override
         public PositionEvent map(String s) throws Exception {
             String[] fields = s.split(",");
             int[] fieldsInt = Arrays.stream(fields).mapToInt(Integer::parseInt).toArray();
-            return new PositionEvent(fieldsInt[0], String.valueOf(fieldsInt[1]), fieldsInt[2], fieldsInt[3],
-                    fieldsInt[4], fieldsInt[5], fieldsInt[6], fieldsInt[7]);
+            event.f0 = fieldsInt[0];
+            event.f1 = String.valueOf(fieldsInt[1]);
+            event.f2 = fieldsInt[2];
+            event.f3 = fieldsInt[3];
+            event.f4 = fieldsInt[4];
+            event.f5 = fieldsInt[5];
+            event.f6 = fieldsInt[6];
+            event.f7 = fieldsInt[7];
+            return event;
         }
     }
 

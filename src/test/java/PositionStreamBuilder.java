@@ -1,5 +1,5 @@
-import es.upm.cc.Telematics;
-import es.upm.cc.events.PositionEvent;
+import master2017.flink.VehicleTelematics;
+import master2017.flink.events.PositionEvent;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
@@ -15,7 +15,7 @@ public class PositionStreamBuilder {
     public PositionStreamBuilder fromLines(String[] lines) {
         stream = env.fromElements(lines)
                 .setParallelism(1)
-                .map(new Telematics.Tokenizer());
+                .map(new VehicleTelematics.Tokenizer());
         return this;
     }
 

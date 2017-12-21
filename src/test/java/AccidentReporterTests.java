@@ -1,6 +1,6 @@
-import es.upm.cc.AccidentReporter;
-import es.upm.cc.events.AccidentEvent;
-import es.upm.cc.events.PositionEvent;
+import master2017.flink.AccidentReporter;
+import master2017.flink.events.AccidentEvent;
+import master2017.flink.events.PositionEvent;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;

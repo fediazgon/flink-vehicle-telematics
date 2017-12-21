@@ -1,7 +1,7 @@
-package es.upm.cc;
+package master2017.flink;
 
-import es.upm.cc.events.AccidentEvent;
-import es.upm.cc.events.PositionEvent;
+import master2017.flink.events.AccidentEvent;
+import master2017.flink.events.PositionEvent;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -15,16 +15,16 @@ public class AccidentReporter {
 
     public static SingleOutputStreamOperator<AccidentEvent> run(SingleOutputStreamOperator<PositionEvent> stream) {
         return stream
-                .filter(e -> e.getSpeed() == 0).setParallelism(1)
+                .filter(e -> e.f2 == 0).setParallelism(1) // speed = 0
                 .keyBy(new KeySelector<PositionEvent, Tuple5<String, Integer, Integer, Integer, Integer>>() {
                     @Override
                     public Tuple5<String, Integer, Integer, Integer, Integer> getKey(PositionEvent positionEvent) throws Exception {
                         return new Tuple5<>(
-                                positionEvent.getVid(),
-                                positionEvent.getXway(),
-                                positionEvent.getSegment(),
-                                positionEvent.getDir(),
-                                positionEvent.getPosition());
+                                positionEvent.f1,
+                                positionEvent.f3,
+                                positionEvent.f6,
+                                positionEvent.f5,
+                                positionEvent.f7);
                     }
                 }).countWindow(4, 1)
                 .apply(new MyWindowFunction());
@@ -42,7 +42,7 @@ public class AccidentReporter {
 
             Iterator<PositionEvent> events = iterable.iterator();
 
-            int firstTimestamp = events.next().getTimestamp();
+            int time1 = events.next().f0;
             int count = 1;
 
             while (events.hasNext()) {
@@ -51,8 +51,8 @@ public class AccidentReporter {
             }
 
             if (count == 4) {
-                accidentEvent.f0 = firstTimestamp;
-                accidentEvent.f1 = lastElement.getTimestamp();
+                accidentEvent.f0 = time1;
+                accidentEvent.f1 = lastElement.f0;
                 accidentEvent.f2 = key.f0;
                 accidentEvent.f3 = key.f1;
                 accidentEvent.f4 = key.f2;

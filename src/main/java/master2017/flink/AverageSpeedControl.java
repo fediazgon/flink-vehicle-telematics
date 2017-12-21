@@ -1,7 +1,7 @@
-package es.upm.cc;
+package master2017.flink;
 
-import es.upm.cc.events.AverageSpeedEvent;
-import es.upm.cc.events.PositionEvent;
+import master2017.flink.events.AverageSpeedEvent;
+import master2017.flink.events.PositionEvent;
 import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -16,20 +16,20 @@ public final class AverageSpeedControl {
 
     public static SingleOutputStreamOperator<AverageSpeedEvent> run(SingleOutputStreamOperator<PositionEvent> stream) {
         return stream
-                .filter((PositionEvent e) -> e.getSegment() >= 52 && e.getSegment() <= 56)
+                .filter((PositionEvent e) -> e.f6 >= 52 && e.f6 <= 56)
                 .assignTimestampsAndWatermarks(new AscendingTimestampExtractor<PositionEvent>() {
                     @Override
                     public long extractAscendingTimestamp(PositionEvent positionEvent) {
-                        return positionEvent.getTimestamp() * 1000;
+                        return positionEvent.f0 * 1000;
                     }
                 })
                 .keyBy(1, 3, 5)
-                .window(EventTimeSessionWindows.withGap(Time.seconds(31)))
-                .apply(new MyWindowFunction());
+                .window(EventTimeSessionWindows.withGap(Time.seconds(31))) // WHY FLINK?!
+                .apply(new AvgWindow());
     }
 
     @SuppressWarnings(value = "unchecked")
-    static class MyWindowFunction implements WindowFunction<PositionEvent, AverageSpeedEvent, Tuple, TimeWindow> {
+    static class AvgWindow implements WindowFunction<PositionEvent, AverageSpeedEvent, Tuple, TimeWindow> {
 
         private AverageSpeedEvent avgSpeedEvent = new AverageSpeedEvent();
 
@@ -42,20 +42,20 @@ public final class AverageSpeedControl {
 
             byte completedSegments = 0;
 
-            int firstTimestamp = Integer.MAX_VALUE;
-            int firstPosition = Integer.MAX_VALUE;
+            int time1 = Integer.MAX_VALUE;
+            int pos1 = Integer.MAX_VALUE;
 
-            int lastTimestamp = 0;
-            int lastPosition = 0;
+            int time2 = 0;
+            int pos2 = 0;
 
             for (PositionEvent e : iterable) {
-                int currentTimestamp = e.getTimestamp();
-                int currentPosition = e.getPosition();
-                completedSegments |= 1 << (56 - e.getSegment());
-                firstTimestamp = Math.min(firstTimestamp, currentTimestamp);
-                firstPosition = Math.min(firstPosition, currentPosition);
-                lastTimestamp = Math.max(lastTimestamp, currentTimestamp);
-                lastPosition = Math.max(lastPosition, currentPosition);
+                int currentTime = e.f0;
+                int currentPos = e.f7;
+                completedSegments |= 1 << (56 - e.f6);
+                time1 = Math.min(time1, currentTime);
+                pos1 = Math.min(pos1, currentPos);
+                time2 = Math.max(time2, currentTime);
+                pos2 = Math.max(pos2, currentPos);
             }
 
             boolean completed = false;
@@ -63,10 +63,10 @@ public final class AverageSpeedControl {
                 completed = true;
 
             if (completed) {
-                double avgSpeed = (lastPosition - firstPosition) * 1.0 / (lastTimestamp - firstTimestamp) * 2.23694;
+                double avgSpeed = (pos2 - pos1) * 1.0 / (time2 - time1) * 2.23694;
                 if (avgSpeed > 60) {
-                    avgSpeedEvent.f0 = firstTimestamp;
-                    avgSpeedEvent.f1 = lastTimestamp;
+                    avgSpeedEvent.f0 = time1;
+                    avgSpeedEvent.f1 = time2;
                     avgSpeedEvent.f2 = key.f0;
                     avgSpeedEvent.f3 = key.f1;
                     avgSpeedEvent.f4 = key.f2;

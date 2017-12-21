@@ -1,7 +1,7 @@
-import es.upm.cc.AccidentReporter;
-import es.upm.cc.AverageSpeedControl;
-import es.upm.cc.SpeedRadar;
-import es.upm.cc.Telematics;
+import master2017.flink.AccidentReporter;
+import master2017.flink.AverageSpeedControl;
+import master2017.flink.SpeedRadar;
+import master2017.flink.VehicleTelematics;
 import org.apache.flink.runtime.client.JobExecutionException;
 import org.apache.flink.streaming.util.StreamingMultipleProgramsTestBase;
 import org.junit.Rule;
@@ -10,9 +10,9 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 
-import static es.upm.cc.Telematics.ACCIDENTS_FILE;
-import static es.upm.cc.Telematics.AVG_SPEED_FILE;
-import static es.upm.cc.Telematics.SPEED_RADAR_FILE;
+import static master2017.flink.VehicleTelematics.ACCIDENTS_FILE;
+import static master2017.flink.VehicleTelematics.AVG_SPEED_FILE;
+import static master2017.flink.VehicleTelematics.SPEED_RADAR_FILE;
 import static org.junit.Assert.assertTrue;
 
 public class MainTests extends StreamingMultipleProgramsTestBase {
@@ -26,13 +26,13 @@ public class MainTests extends StreamingMultipleProgramsTestBase {
 
     @Test(expected = Exception.class)
     public void shouldPrintHelpMessageAndExit() throws Exception {
-        Telematics.main(new String[0]);
+        VehicleTelematics.main(new String[0]);
     }
 
     @Test(expected = JobExecutionException.class)
     public void inputFileDoesNotExists() throws Exception {
         String output = temporaryFolder.newFolder(OUTPUT_FOLDER).getPath();
-        Telematics.main(new String[]{"whatever", output});
+        VehicleTelematics.main(new String[]{"whatever", output});
     }
 
     @Test
@@ -42,7 +42,7 @@ public class MainTests extends StreamingMultipleProgramsTestBase {
         String output = temporaryFolder.newFolder(OUTPUT_FOLDER).getPath();
         String[] args = new String[]{input, output};
 
-        Telematics.main(args);
+        VehicleTelematics.main(args);
 
         assertTrue(new File(String.format("%s/%s", output, SPEED_RADAR_FILE)).exists());
         assertTrue(new File(String.format("%s/%s", output, AVG_SPEED_FILE)).exists());
@@ -52,7 +52,7 @@ public class MainTests extends StreamingMultipleProgramsTestBase {
     //TODO: delete and make private constructors when jacoco 0.8 is released
     @Test
     public void hackConstructorCoverage() {
-        new Telematics();
+        new VehicleTelematics();
         new SpeedRadar();
         new AverageSpeedControl();
         new AccidentReporter();
