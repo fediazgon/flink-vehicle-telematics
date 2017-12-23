@@ -12,7 +12,7 @@ public final class SpeedRadar {
 
     public static SingleOutputStreamOperator<SpeedEvent> run(SingleOutputStreamOperator<PositionEvent> stream) {
         return stream
-                .filter((PositionEvent e) -> e.f2 > MAXIMUM_SPEED)
+                .filter((PositionEvent e) -> e.getSpeed() > MAXIMUM_SPEED)
                 .map(new ToSpeedEvent());
     }
 
@@ -24,12 +24,12 @@ public final class SpeedRadar {
 
         @Override
         public SpeedEvent map(PositionEvent positionEvent) throws Exception {
-            speedEvent.f0 = positionEvent.f0;
-            speedEvent.f1 = positionEvent.f1;
-            speedEvent.f2 = positionEvent.f3;
-            speedEvent.f3 = positionEvent.f6;
-            speedEvent.f4 = positionEvent.f5;
-            speedEvent.f5 = positionEvent.f2;
+            speedEvent.setTime(positionEvent.getTime());
+            speedEvent.setVid(positionEvent.getVid());
+            speedEvent.setHighway(positionEvent.getHighway());
+            speedEvent.setSegment(positionEvent.getSegment());
+            speedEvent.setDirection(positionEvent.getDirection());
+            speedEvent.setSpeed(positionEvent.getSpeed());
             return speedEvent;
         }
     }

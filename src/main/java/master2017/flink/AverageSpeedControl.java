@@ -1,8 +1,8 @@
 package master2017.flink;
 
-import master2017.flink.events.AverageSpeedEvent;
+import master2017.flink.events.AvgSpeedEvent;
 import master2017.flink.events.PositionEvent;
-import org.apache.flink.api.java.tuple.Tuple;
+import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.functions.timestamps.AscendingTimestampExtractor;
@@ -14,31 +14,43 @@ import org.apache.flink.util.Collector;
 
 public final class AverageSpeedControl {
 
-    public static SingleOutputStreamOperator<AverageSpeedEvent> run(SingleOutputStreamOperator<PositionEvent> stream) {
+    public static SingleOutputStreamOperator<AvgSpeedEvent> run(SingleOutputStreamOperator<PositionEvent> stream) {
         return stream
-                .filter((PositionEvent e) -> e.f6 >= 52 && e.f6 <= 56)
+                .filter((PositionEvent e) -> e.getSegment() >= 52 && e.getSegment() <= 56)
                 .assignTimestampsAndWatermarks(new AscendingTimestampExtractor<PositionEvent>() {
                     @Override
                     public long extractAscendingTimestamp(PositionEvent positionEvent) {
-                        return positionEvent.f0 * 1000;
+                        return positionEvent.getTime() * 1000;
                     }
                 })
-                .keyBy(1, 3, 5)
+                .keyBy(new KeySelector<PositionEvent, AvgSpeedKey>() {
+
+                    AvgSpeedKey key = new AvgSpeedKey();
+
+                    @Override
+                    public AvgSpeedKey getKey(PositionEvent positionEvent) throws Exception {
+                        key.f0 = positionEvent.getVid();
+                        key.f1 = positionEvent.getHighway();
+                        key.f2 = positionEvent.getDirection();
+                        return key;
+                    }
+                })
                 .window(EventTimeSessionWindows.withGap(Time.seconds(31))) // WHY FLINK?!
                 .apply(new AvgWindow());
     }
 
-    @SuppressWarnings(value = "unchecked")
-    static class AvgWindow implements WindowFunction<PositionEvent, AverageSpeedEvent, Tuple, TimeWindow> {
+    private static class AvgSpeedKey extends Tuple3<String, Integer, Integer> {
+    }
 
-        private AverageSpeedEvent avgSpeedEvent = new AverageSpeedEvent();
+    @SuppressWarnings(value = "unchecked")
+    private static class AvgWindow implements WindowFunction<PositionEvent, AvgSpeedEvent, AvgSpeedKey, TimeWindow> {
+
+        private AvgSpeedEvent avgSpeedEvent = new AvgSpeedEvent();
 
         @Override
-        public void apply(Tuple t, TimeWindow timeWindow,
+        public void apply(AvgSpeedKey key, TimeWindow timeWindow,
                           Iterable<PositionEvent> iterable,
-                          Collector<AverageSpeedEvent> collector) throws Exception {
-
-            Tuple3<String, Integer, Integer> key = (Tuple3<String, Integer, Integer>) t;
+                          Collector<AvgSpeedEvent> collector) throws Exception {
 
             byte completedSegments = 0;
 
@@ -65,12 +77,12 @@ public final class AverageSpeedControl {
             if (completed) {
                 double avgSpeed = (pos2 - pos1) * 1.0 / (time2 - time1) * 2.23694;
                 if (avgSpeed > 60) {
-                    avgSpeedEvent.f0 = time1;
-                    avgSpeedEvent.f1 = time2;
-                    avgSpeedEvent.f2 = key.f0;
-                    avgSpeedEvent.f3 = key.f1;
-                    avgSpeedEvent.f4 = key.f2;
-                    avgSpeedEvent.f5 = avgSpeed;
+                    avgSpeedEvent.setEntryTime(time1);
+                    avgSpeedEvent.setExitTime(time2);
+                    avgSpeedEvent.setVid(key.f0);
+                    avgSpeedEvent.setHighway(key.f1);
+                    avgSpeedEvent.setDirection(key.f2);
+                    avgSpeedEvent.setAvgSpeed(avgSpeed);
                     collector.collect(avgSpeedEvent);
                 }
             }

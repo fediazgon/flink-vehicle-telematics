@@ -1,5 +1,5 @@
 import master2017.flink.events.AccidentEvent;
-import master2017.flink.events.AverageSpeedEvent;
+import master2017.flink.events.AvgSpeedEvent;
 import master2017.flink.events.PositionEvent;
 import org.apache.flink.types.NullFieldException;
 import org.junit.Test;
@@ -16,7 +16,7 @@ public class EventsTests {
 
     @Test(expected = NullFieldException.class)
     public void shouldCreateEmptyAverageSpeedEvent() {
-        AverageSpeedEvent empty = new AverageSpeedEvent();
+        AvgSpeedEvent empty = new AvgSpeedEvent();
         empty.getFieldNotNull(0);
     }
 

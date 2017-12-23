@@ -53,14 +53,14 @@ public class VehicleTelematics {
         public PositionEvent map(String s) throws Exception {
             String[] fields = s.split(",");
             int[] fieldsInt = Arrays.stream(fields).mapToInt(Integer::parseInt).toArray();
-            event.f0 = fieldsInt[0];
-            event.f1 = String.valueOf(fieldsInt[1]);
-            event.f2 = fieldsInt[2];
-            event.f3 = fieldsInt[3];
-            event.f4 = fieldsInt[4];
-            event.f5 = fieldsInt[5];
-            event.f6 = fieldsInt[6];
-            event.f7 = fieldsInt[7];
+            event.setTime(fieldsInt[0]);
+            event.setVid(String.valueOf(fieldsInt[1]));
+            event.setSpeed(fieldsInt[2]);
+            event.setHighway(fieldsInt[3]);
+            event.setLane(fieldsInt[4]);
+            event.setDirection(fieldsInt[5]);
+            event.setSegment(fieldsInt[6]);
+            event.setPosition(fieldsInt[7]);
             return event;
         }
     }

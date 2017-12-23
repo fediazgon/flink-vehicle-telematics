@@ -51,13 +51,13 @@ public class AccidentReporter {
             }
 
             if (count == 4) {
-                accidentEvent.f0 = time1;
-                accidentEvent.f1 = lastElement.f0;
-                accidentEvent.f2 = key.f0;
-                accidentEvent.f3 = key.f1;
-                accidentEvent.f4 = key.f2;
-                accidentEvent.f5 = key.f3;
-                accidentEvent.f6 = key.f4;
+                accidentEvent.setStartTime(time1);
+                accidentEvent.setFinishTime(lastElement.f0);
+                accidentEvent.setVid(key.f0);
+                accidentEvent.setHighway(key.f1);
+                accidentEvent.setSegment(key.f2);
+                accidentEvent.setDirection(key.f3);
+                accidentEvent.setPosition(key.f4);
                 collector.collect(accidentEvent);
             }
         }
