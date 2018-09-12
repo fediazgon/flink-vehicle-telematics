@@ -1,11 +1,11 @@
-import master2017.flink.SpeedRadar;
-import master2017.flink.events.PositionEvent;
-import master2017.flink.events.SpeedEvent;
+import fediazgon.SpeedRadar;
+import fediazgon.events.PositionEvent;
+import fediazgon.events.SpeedEvent;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
-import org.apache.flink.streaming.util.StreamingMultipleProgramsTestBase;
+import org.apache.flink.test.util.AbstractTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,7 +15,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class SpeedRadarTests extends StreamingMultipleProgramsTestBase {
+public class SpeedRadarTests extends AbstractTestBase {
 
     private StreamExecutionEnvironment env;
 

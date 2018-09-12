@@ -1,6 +1,6 @@
-import master2017.flink.events.AccidentEvent;
-import master2017.flink.events.AvgSpeedEvent;
-import master2017.flink.events.PositionEvent;
+import fediazgon.events.AccidentEvent;
+import fediazgon.events.AvgSpeedEvent;
+import fediazgon.events.PositionEvent;
 import org.apache.flink.types.NullFieldException;
 import org.junit.Test;
 

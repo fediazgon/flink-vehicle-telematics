@@ -1,11 +1,11 @@
-import master2017.flink.AverageSpeedControl;
-import master2017.flink.events.AvgSpeedEvent;
-import master2017.flink.events.PositionEvent;
+import fediazgon.AverageSpeedControl;
+import fediazgon.events.AvgSpeedEvent;
+import fediazgon.events.PositionEvent;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
-import org.apache.flink.streaming.util.StreamingMultipleProgramsTestBase;
+import org.apache.flink.test.util.AbstractTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,7 +15,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class AverageSpeedControlTests extends StreamingMultipleProgramsTestBase {
+public class AverageSpeedControlTests extends AbstractTestBase {
 
     private StreamExecutionEnvironment env;
 

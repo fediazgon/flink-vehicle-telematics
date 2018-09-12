@@ -1,4 +1,4 @@
-package master2017.flink.events;
+package fediazgon.events;
 
 import org.apache.flink.api.java.tuple.Tuple8;
 

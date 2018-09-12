@@ -1,11 +1,11 @@
-import master2017.flink.AccidentReporter;
-import master2017.flink.events.AccidentEvent;
-import master2017.flink.events.PositionEvent;
+import fediazgon.AccidentReporter;
+import fediazgon.events.AccidentEvent;
+import fediazgon.events.PositionEvent;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
-import org.apache.flink.streaming.util.StreamingMultipleProgramsTestBase;
+import org.apache.flink.test.util.AbstractTestBase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +15,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class AccidentReporterTests extends StreamingMultipleProgramsTestBase {
+public class AccidentReporterTests extends AbstractTestBase {
 
     private StreamExecutionEnvironment env;
     SingleOutputStreamOperator<PositionEvent> source;

@@ -1,21 +1,19 @@
-import master2017.flink.AccidentReporter;
-import master2017.flink.AverageSpeedControl;
-import master2017.flink.SpeedRadar;
-import master2017.flink.VehicleTelematics;
+import fediazgon.AccidentReporter;
+import fediazgon.AverageSpeedControl;
+import fediazgon.SpeedRadar;
+import fediazgon.VehicleTelematics;
 import org.apache.flink.runtime.client.JobExecutionException;
-import org.apache.flink.streaming.util.StreamingMultipleProgramsTestBase;
+import org.apache.flink.test.util.AbstractTestBase;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 
-import static master2017.flink.VehicleTelematics.ACCIDENTS_FILE;
-import static master2017.flink.VehicleTelematics.AVG_SPEED_FILE;
-import static master2017.flink.VehicleTelematics.SPEED_RADAR_FILE;
+import static fediazgon.VehicleTelematics.*;
 import static org.junit.Assert.assertTrue;
 
-public class MainTests extends StreamingMultipleProgramsTestBase {
+public class MainTests extends AbstractTestBase {
 
     private static final String INPUT_FILE = "test_input.csv";
     private static final String OUTPUT_FOLDER = "output";

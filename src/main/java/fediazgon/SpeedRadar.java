@@ -1,7 +1,7 @@
-package master2017.flink;
+package fediazgon;
 
-import master2017.flink.events.PositionEvent;
-import master2017.flink.events.SpeedEvent;
+import fediazgon.events.PositionEvent;
+import fediazgon.events.SpeedEvent;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.functions.FunctionAnnotation;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;

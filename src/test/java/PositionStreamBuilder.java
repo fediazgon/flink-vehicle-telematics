@@ -1,5 +1,5 @@
-import master2017.flink.VehicleTelematics;
-import master2017.flink.events.PositionEvent;
+import fediazgon.VehicleTelematics;
+import fediazgon.events.PositionEvent;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
