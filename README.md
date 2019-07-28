@@ -10,7 +10,7 @@ Stream processing of simulated on-vehicle sensors data using <a href="https://fl
 </h4>
 
 <p align="center">
-  <a href="https://travis-ci.org/fdiazgon/flink-vehicle-telematics">
+  <a href="https://travis-ci.org/fediazgon/flink-vehicle-telematics">
     <img src="https://travis-ci.org/fediazgon/flink-vehicle-telematics.svg?branch=master" alt="TravisCI">
   </a>
   <a href="https://coveralls.io/github/fediazgon/flink-vehicle-telematics?branch=master">
