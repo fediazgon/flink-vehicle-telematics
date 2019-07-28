@@ -1,6 +1,6 @@
 <h1 align="center">
   <div style="margin:10px;">
-    <img src="https://github.com/fdiazgon/fdiazgon.github.io/blob/master/art/flink-vehicle-telematics-logo.png?raw=true" alt="project-logo" width="200px">
+    <img src="https://github.com/fediazgon/flink-vehicle-telematics/blob/assets/logo.png?raw=true" alt="project-logo" width="200px">
   </div>
   flink-vehicle-telematics
 </h1>
@@ -30,7 +30,7 @@ Stream processing of simulated on-vehicle sensors data using <a href="https://fl
 In this project we consider that each vehicle reports a position event every 30 seconds with the
 following format: Time, VID, Spd, XWay, Lane, Dir, Seg, Pos.
 
-![problem-intuition](https://github.com/fdiazgon/fdiazgon.github.io/blob/master/art/flink-vehicle-telematics-road.png?raw=true)
+![problem-intuition](https://github.com/fediazgon/flink-vehicle-telematics/blob/assets/front-cover.png?raw=true)
 
 | Metric | Description                                                                                                         | Domain                              |
 |--------|---------------------------------------------------------------------------------------------------------------------|-------------------------------------|
