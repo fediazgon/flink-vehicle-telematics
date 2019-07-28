@@ -11,10 +11,10 @@ Stream processing of simulated on-vehicle sensors data using <a href="https://fl
 
 <p align="center">
   <a href="https://travis-ci.org/fdiazgon/flink-vehicle-telematics">
-    <img src="https://travis-ci.org/fdiazgon/flink-vehicle-telematics.svg?branch=master" alt="TravisCI">
+    <img src="https://travis-ci.org/fediazgon/flink-vehicle-telematics.svg?branch=master" alt="TravisCI">
   </a>
-  <a href="https://coveralls.io/github/fdiazgon/flink-vehicle-telematics?branch=master">
-    <img src="https://coveralls.io/repos/github/fdiazgon/flink-vehicle-telematics/badge.svg?branch=master" alt="Coveralls">
+  <a href="https://coveralls.io/github/fediazgon/flink-vehicle-telematics?branch=master">
+    <img src="https://coveralls.io/repos/github/fediazgon/flink-vehicle-telematics/badge.svg?branch=master" alt="Coveralls">
   </a>
 </p>
 
